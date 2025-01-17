@@ -34,6 +34,23 @@ const weapons = [
     power: 100,
   },
 ];
+const monsters = [
+  {
+    name: "slime",
+    level: 2,
+    health: 15,
+  },
+  {
+    name: "fanged beast",
+    level: 8,
+    health: 60,
+  },
+  {
+    name: "dragon",
+    level: 20,
+    health: 300,
+  },
+];
 const locations = [
   {
     name: "town square",
@@ -56,6 +73,12 @@ const locations = [
     "button text": ["Fight slime", "Fight fanged beast", "Go to town square"],
     "button functions": [fightSlime, fightBeast, goTown],
     text: "You enter the cave. You see some monsters.",
+  },
+  {
+    name: "fight",
+    "button text": ["Attack", "Dodge", "Run"],
+    "button functions": [attack, dodge, goTown],
+    text: "You are fighting a monster.",
   },
 ];
 // const cat = {
@@ -80,9 +103,6 @@ function goStore() {
 }
 function goCave() {
   update(locations[2]);
-}
-function fightDragon() {
-  console.log("Fighting dragon.");
 }
 function buyHealth() {
   if (gold >= 10) {
@@ -115,6 +135,14 @@ function buyWeapon() {
 }
 function sellWeapon() {
   if (inventory.length > 1) {
+    gold += 15;
+    goldText.innerText = gold;
+    let currentWeapon;
+    currentWeapon = inventory.shift();
+    text.innerText = "You sold a " + currentWeapon + ".";
+    text.innerText += " In your inventory you have: " + inventory;
+  } else {
+    text.innerText = "Don't sell your only weapon!";
   }
 }
 function update(location) {
@@ -126,8 +154,46 @@ function update(location) {
   button3.onclick = location["button functions"][2];
   text.innerText = location.text;
 }
-function fightSlime() {}
-function fightBeast() {}
+function fightSlime() {
+  fighting = 0;
+  goFight();
+}
+function fightBeast() {
+  fighting = 1;
+  goFight();
+}
+function fightDragon() {
+  fighting = 2;
+  goFight();
+}
+function goFight() {
+  update(locations[3]);
+  monsterHealth = monsters[fighting].health;
+  monsterStats.style.display = "block";
+  monsterName.innerText = monsters[fighting].name;
+  monsterHealthText.innerText = monsterHealth;
+}
+function attack() {
+  text.innerText = "The " + monsters[fighting].name + " attacks.";
+  text.innerText +=
+    " You attack it with your " + weapons[currentWeaponIndex].name + ".";
+  health -= monsters[fighting].level;
+  monsterHealth -= weapons[currentWeaponIndex].power;
+  monsterHealth -=
+    weapons[currentWeaponIndex].power + Math.floor(Math.random() * xp) + 1;
+  healthText.innerText = health;
+  monsterHealthText.innerText = monsterHealth;
+  if (health <= 0) {
+    lose();
+  } else if (monsterHealth <= 0) {
+    defeatMonster();
+  }
+}
+function dodge() {
+  text.innerText="You dodge the attack from the "+monsters[fighting].name
+}
+function defeatMonster (){}
+function lose (){}
 
 //initialize buttons
 button1.onclick = goStore;
